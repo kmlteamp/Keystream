@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#090611">
+<title>NCB KEY STREAM</title>
+<style>
+:root{color-scheme:dark;--bg:#090611;--panel:#151020;--line:#33234c;--purple:#a855f7;--pink:#ec4899;--text:#f7f1ff;--muted:#a99bb8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#281044 0,#090611 48%);color:var(--text);font:15px system-ui,Arial,sans-serif;min-height:100vh}
+header{padding:24px 18px;text-align:center;border-bottom:1px solid #30203f;background:#0b0712cc}
+.logo{font-size:27px;font-weight:900;letter-spacing:2px;text-shadow:0 0 18px #a855f7}.logo span{color:#d58aff}
+header p{margin:6px 0 0;color:var(--muted);font-size:13px}
+main{width:min(960px,92%);margin:28px auto 60px}.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+button{border:0;border-radius:10px;padding:12px 16px;background:linear-gradient(100deg,#9333ea,#c026d3);color:white;font-weight:800;cursor:pointer}
+button.secondary{background:#241833;border:1px solid var(--line)}button.danger{background:#8b1e49}
+button:disabled{opacity:.5;cursor:not-allowed}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.panel{background:linear-gradient(145deg,#191225,#100c18);border:1px solid var(--line);border-radius:17px;padding:20px;box-shadow:0 12px 40px #0005}
+h2{font-size:18px;margin:0 0 16px}.muted{color:var(--muted);font-size:13px}
+label{display:block;color:#cbb9dc;font-size:13px;margin:12px 0 6px}
+input{width:100%;padding:12px;border-radius:9px;border:1px solid #49335f;background:#0c0912;color:white;outline:none}
+input:focus{border-color:var(--purple)}.wide{width:100%;margin-top:14px}
+.device{font:12px ui-monospace,monospace;word-break:break-all;background:#0b0810;padding:10px;border-radius:8px;border:1px solid #30223e;color:#d8b4fe}
+.result{margin-top:14px;padding:13px;border:1px dashed #70459a;border-radius:10px;word-break:break-all;display:none}
+.keytext{font:700 16px ui-monospace,monospace;color:#e9c7ff}.status{margin-top:12px;color:#c4b5fd;min-height:20px}
+table{width:100%;border-collapse:collapse;font-size:12px;margin-top:12px}th,td{text-align:left;padding:9px 6px;border-bottom:1px solid #352644;word-break:break-word}
+th{color:#d8b4fe}.scroll{overflow-x:auto}.hidden{display:none}.tag{padding:4px 7px;border-radius:6px;background:#253d2d;color:#9af0b0}.locked{background:#4b1e2b;color:#ff9db4}
+footer{text-align:center;color:#796b87;padding:20px;font-size:12px}
+</style>
+</head>
+<body>
+<header><div class="logo">NCB <span>KEY STREAM</span></div><p>GAMING LICENSE SYSTEM · CLOUDFLARE EDITION</p></header>
+<main>
+ <div class="tabs">
+  <button id="userTab">USER CENTER</button>
+  <button class="secondary" id="adminTab">ADMIN PANEL</button>
+ </div>
+ <section id="userView">
+  <div class="grid">
+   <div class="panel">
+    <h2>THIẾT BỊ CỦA BẠN</h2>
+    <div class="muted">DEVICE ID được tạo tự động trên trình duyệt này.</div>
+    <p class="device" id="deviceId">Đang tạo...</p>
+    <button class="secondary" id="copyDevice">SAO CHÉP DEVICE ID</button>
+   </div>
+   <div class="panel">
+    <h2>LẤY KEY TỰ ĐỘNG</h2>
+    <div class="muted">KEY mới mặc định có hiệu lực 24 giờ và gắn với thiết bị hiện tại.</div>
+    <button class="wide" id="getKey">GENERATE MY KEY</button>
+    <div class="result" id="issued"><div class="muted">KEY CỦA BẠN</div><p class="keytext" id="newKey"></p><button class="secondary" id="copyKey">SAO CHÉP KEY</button><p class="muted" id="expiry"></p></div>
+    <div class="status" id="userStatus"></div>
+   </div>
+   <div class="panel">
+    <h2>KIỂM TRA KEY</h2>
+    <label for="keyInput">NHẬP KEY</label><input id="keyInput" placeholder="NCB-XXXXXX-XXXXXX-XXXXXX">
+    <button class="wide" id="checkKey">VERIFY KEY</button>
+    <div class="status" id="verifyStatus"></div>
+   </div>
+  </div>
+ </section>
+
+ <section id="adminView" class="hidden">
+  <div class="panel">
+   <h2>ADMIN AUTHENTICATION</h2>
+   <label for="adminToken">ADMIN TOKEN</label><input id="adminToken" type="password" autocomplete="off" placeholder="Nhập token ADMIN đã cài trên Cloudflare">
+   <button class="wide" id="loadKeys">ĐĂNG NHẬP / TẢI DANH SÁCH KEY</button>
+   <div class="status" id="adminStatus"></div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+   <h2>TẠO KEY MỚI</h2>
+   <label for="hours">THỜI HẠN (GIỜ, TỐI ĐA 8760)</label><input id="hours" type="number" min="1" max="8760" value="24">
+   <label for="bindDevice">DEVICE ID (để trống nếu chưa gắn thiết bị)</label><input id="bindDevice" placeholder="Có thể để trống">
+   <button class="wide" id="adminCreate">CREATE KEY</button>
+   <div class="result" id="adminIssued"><p class="keytext" id="adminNewKey"></p><button class="secondary" id="adminCopyKey">SAO CHÉP KEY</button></div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+   <h2>QUẢN LÝ KEY</h2>
+   <div class="muted">Danh sách tối đa 200 KEY gần nhất. Khóa KEY sẽ khiến xác thực thất bại.</div>
+   <div class="scroll"><table><thead><tr><th>KEY</th><th>DEVICE ID</th><th>TRẠNG THÁI</th><th>HẾT HẠN</th><th>THAO TÁC</th></tr></thead><tbody id="keyRows"><tr><td colspan="5">Chưa tải dữ liệu.</td></tr></tbody></table></div>
+  </div>
+ </section>
+</main>
+<footer>NCB STUDIO · KEY STREAM</footer>
+<script>
+const $ = id => document.getElementById(id);
+let latestUserKey = "", latestAdminKey = "";
+function device() {
+  let id = localStorage.getItem("ncb_device_id");
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem("ncb_device_id", id); }
+  return id;
+}
+const deviceId = device();
+$("deviceId").textContent = deviceId;
+$("userTab").onclick = () => { $("userView").classList.remove("hidden"); $("adminView").classList.add("hidden"); $("userTab").classList.remove("secondary"); $("adminTab").classList.add("secondary"); };
+$("adminTab").onclick = () => { $("adminView").classList.remove("hidden"); $("userView").classList.add("hidden"); $("adminTab").classList.remove("secondary"); $("userTab").classList.add("secondary"); };
+async function api(path, options={}) {
+  const response = await fetch(path, { ...options, headers: { "content-type":"application/json", ...(options.headers||{}) } });
+  const data = await response.json().catch(()=>({error:"Phản hồi máy chủ không hợp lệ."}));
+  if (!response.ok) throw new Error(data.error || "Yêu cầu thất bại.");
+  return data;
+}
+function fmt(ts) { return new Date(ts*1000).toLocaleString("vi-VN"); }
+$("copyDevice").onclick = async()=>{await navigator.clipboard.writeText(deviceId);$("userStatus").textContent="Đã sao chép DEVICE ID.";};
+$("getKey").onclick = async()=>{
+  $("getKey").disabled=true; $("userStatus").textContent="Đang tạo KEY...";
+  try {
+    const data=await api("/api/issue",{method:"POST",body:JSON.stringify({deviceId,hours:24})});
+    latestUserKey=data.key;$("newKey").textContent=data.key;$("expiry").textContent="Hết hạn: "+fmt(data.expiresAt);
+    $("issued").style.display="block";$("userStatus").textContent="Cấp KEY thành công.";
+  } catch(e) {$("userStatus").textContent=e.message;}
+  finally {$("getKey").disabled=false;}
+};
+$("copyKey").onclick=async()=>{await navigator.clipboard.writeText(latestUserKey);$("userStatus").textContent="Đã sao chép KEY.";};
+$("checkKey").onclick=async()=>{
+  $("verifyStatus").textContent="Đang kiểm tra...";
+  try {const d=await api("/api/validate",{method:"POST",body:JSON.stringify({key:$("keyInput").value.trim(),deviceId})});$("verifyStatus").textContent="KEY HỢP LỆ · Hết hạn: "+fmt(d.expiresAt);}
+  catch(e){$("verifyStatus").textContent=e.message;}
+};
+function adminHeaders(){return {authorization:"Bearer "+$("adminToken").value.trim()};}
+$("loadKeys").onclick=loadKeys;
+async function loadKeys(){
+  $("adminStatus").textContent="Đang tải...";
+  try {const d=await api("/api/admin/keys",{headers:adminHeaders()});renderKeys(d.keys);$("adminStatus").textContent="Đã tải "+d.keys.length+" KEY.";}
+  catch(e){$("adminStatus").textContent=e.message;}
+}
+function renderKeys(keys){
+  const body=$("keyRows");body.innerHTML="";
+  if(!keys.length){body.innerHTML="<tr><td colspan='5'>Chưa có KEY.</td></tr>";return;}
+  for(const k of keys){
+    const tr=document.createElement("tr");
+    const vals=[k.key_prefix+"…",k.device_id||"Chưa gắn",k.status,k.expires_at];
+    for(let i=0;i<vals.length;i++){const td=document.createElement("td");td.textContent=i===3?fmt(vals[i]):vals[i];if(i===2){td.innerHTML="";const s=document.createElement("span");s.className=k.status==="active"?"tag":"tag locked";s.textContent=k.status==="active"?"ACTIVE":"LOCKED";td.append(s);}tr.append(td);}
+    const action=document.createElement("td");const b=document.createElement("button");b.className="danger";b.textContent="KHÓA";b.disabled=k.status!=="active";b.onclick=()=>lockKey(k.id);action.append(b);tr.append(action);body.append(tr);
+  }
+}
+async function lockKey(id){
+  if(!confirm("Bạn chắc chắn muốn khóa KEY này?"))return;
+  try{await api(`/api/admin/keys/${id}/lock`,{method:"POST",headers:adminHeaders(),body:"{}"});$("adminStatus").textContent="Đã khóa KEY.";await loadKeys();}
+  catch(e){$("adminStatus").textContent=e.message;}
+}
+$("adminCreate").onclick=async()=>{
+  $("adminCreate").disabled=true;
+  try{
+    const body={hours:Number($("hours").value)};
+    if($("bindDevice").value.trim())body.deviceId=$("bindDevice").value.trim();
+    const d=await api("/api/admin/keys",{method:"POST",headers:adminHeaders(),body:JSON.stringify(body)});
+    latestAdminKey=d.key;$("adminNewKey").textContent=d.key;$("adminIssued").style.display="block";$("adminStatus").textContent="Tạo KEY thành công. Hãy sao chép ngay vì máy chủ chỉ hiển thị toàn bộ KEY một lần.";
+    await loadKeys();
+  }catch(e){$("adminStatus").textContent=e.message;}
+  finally{$("adminCreate").disabled=false;}
+};
+$("adminCopyKey").onclick=async()=>{await navigator.clipboard.writeText(latestAdminKey);$("adminStatus").textContent="Đã sao chép KEY.";};
+</script>
+</body>
+</html>
